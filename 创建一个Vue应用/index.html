@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <!-- 通过CDN的方式使用vue -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+</head>
+<body>
+    <div id="app">
+        {{ num }}
+        <br>
+        <button @click="num++">num+1</button>
+    </div>
+    <!--
+    app.mount("#app");只渲染选定元素，
+    下面这个按钮不在Vue的控制范围内 
+    -->
+    <button @click="num--">num-1</button>
+    <script src="./app.js"></script>
+</body>
+</html>
