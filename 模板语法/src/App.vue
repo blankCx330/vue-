@@ -26,6 +26,9 @@ const updateFun = () => {
   return ok.value ? 'id' : 'click';
 }
 
+const reNum = () => 1;
+const reNull = () => null;
+
 </script>
 
 <template>
@@ -63,13 +66,27 @@ const updateFun = () => {
    
    <!-- 动态参数 -->
    <!-- 
-    简单来说就是会将[updateFun()]中计算出来的结果解析为属性
+    简单来说就是会将[updateFun()]中计算出来的结果解析为属性，事件名称
     例如这里
     div中等价于:id="idText1" 或 :click="idText1"
     button中等价于@id="num++" 或 @click="num++"
    -->
     <div :[updateFun()]="idText1">{{ text }}</div>
     <button @[updateFun()]="num++">num++</button>
+    <!-- 
+     动态参数中表达式的值应当是一个字符串，或者是 null。
+     特殊值 null 意为显式移除该绑定。
+     其他非字符串的值会触发警告
+    -->
+     <!--
+    这两串代码不知道为什么会让网页在原有的内容上的文本下面，
+    再次打印上面的内容
+    <div :[reNull]="idText1">{{ text }}</div>
+    <div :[Number(reNum)]="idText1">{{ text }}</div>
+     -->
+
+     <!-- 修饰符暂时没找到上面例子先复制文档里的例子:( -->
+      <!-- <form @submit.prevent="onSubmit">...</form> -->
 </template>
 
 <style scoped>
