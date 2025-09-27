@@ -112,6 +112,38 @@ console.log(temp);
 tempObj.value.temp = 5;
 console.log(temp);
 
+//额外的 ref 解包细节
+//只有当嵌套在一个深层响应式对象内时，才会发生 ref 解包。
+// 当其作为浅层响应式对象的属性被访问时不会解包。
+let refNum1 = ref(0);
+const refObj = reactive({
+  refNum1//refNum1会自动解包,基本表现为一个普通的数值属性
+})
+console.log("refObj.refNum1:"+refObj.refNum1)
+refNum1.value = 1;
+console.log("refObj.refNum1:"+refObj.refNum1)
+refObj.refNum1 = 42;
+console.log("refObj.refNum1:"+refObj.refNum1)
+
+//将一个新的 ref 赋值给一个关联了已有 ref 的属性，那么它会替换掉旧的 ref
+const newRef = ref(2);
+refObj.refNum1 = newRef;
+console.log("refObj.refNum1:"+refObj.refNum1)
+refNum1.value = 3;
+//refObj.refNum1不再与refNum1关联
+console.log("refObj.refNum1:"+refObj.refNum1)//2
+
+//在模板中解包的注意事项
+//在模板中,只有顶级的ref会被自动解包
+//嵌套在对象中的ref不会被自动解包
+const jiebaoRef = ref(0)
+const jiebaoObj =  { id: ref(1)}
+const { id } = jiebaoObj;//将id解构为顶级属性
+//值得一提的是这里解构得到的是ref对象的引用
+//修改 id.value会同步，因为操作的是同一个 ref
+//而reactive()创建的响应式对象解构得到的是值的副本
+//丢失响应式，与原对象断开连接
+
 </script>
 <template>
   <div>{{ text }}</div>
@@ -141,6 +173,15 @@ console.log(temp);
 
   <div>tempObj: {{ tempObj }} temp: {{ temp }}</div>
   <button @click="updateTempObj">更新tempObj</button>
+
+  <!-- 这个会自动解包 -->
+  <div>{{ jiebaoRef + 1 }}</div>
+  <!-- 这个不会自动解包 -->
+  <div>{{ jiebaoObj.id + 1 }}</div>
+  <!-- 这里的id等效于jiebaoObj.id.value -->
+  <div>{{ id + 1 }}</div>
+  <button @click="id++">id++</button>
+  <div>{{ jiebaoObj.id.value + 1 }}</div>
 </template>
 
 <style scoped>
