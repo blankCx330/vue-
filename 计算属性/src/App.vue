@@ -32,6 +32,42 @@ import { ref, computed } from 'vue';
     console.log('ok2 is now', ok3.value);
   };
 
+  // computed()返回的ref对象是只读的
+  // 当尝试修改时会报错
+  // okState = false;报错,computed()返回的ref对象是只读的
+
+  //可写计算属性
+  const firstName = ref('阿哈');
+  const lastName = ref('阿基维利');
+
+  // 通过传入一个包含getter和setter的对象来创建一个可写的计算属性
+  // 在使用fullName.value时会调用getter
+  // 在给fullName.value赋值时会调用setter
+  // 这其实类似“重写”但只是方便理解
+  const fullName = computed({
+    get() {
+      return firstName.value;
+    },
+    set(newValue) {
+      firstName.value = newValue;
+    }
+  })
+  console.log(fullName.value); // 阿哈
+  const updateName = () => {
+    fullName.value = lastName;
+    console.log(fullName.value); // 阿基维利
+  }
+
+  // 获取上一个值
+  const num = ref(2);
+  const alwaysSmall = computed((previous)=>{
+    if(num.value <= 5){
+      return num.value
+    }
+
+    return previous
+  })
+  console.log(alwaysSmall.value);
 
 </script>
 
@@ -47,6 +83,13 @@ import { ref, computed } from 'vue';
   <!-- 视图发生变化 -->
   <div>{{ ok3State() }}</div>
   <button @click="updateOk3">Toggle Ok3</button>
+
+  <div>{{ firstName }}</div>
+  <button @click="updateName">updateName</button>
+
+  <div>alwaysSmall:{{ alwaysSmall }}</div>
+  <input v-model="num" type="number"></input>
+  <button @click=""></button>
 </template>
 
 <style scoped>
