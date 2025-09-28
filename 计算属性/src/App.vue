@@ -59,16 +59,56 @@ import { ref, computed } from 'vue';
   }
 
   // 获取上一个值
-  const num = ref(2);
+  // 实际上就是通过闭包保存上一个值
+  // 这里的previous就是上一个值
+  // Vue 3.4 为计算属性引入了一个新特性：​
+  // getter 函数可以接收一个参数，这个参数就是上一次计算的结果。
+
+  // (已解决)不知道为什么将input的数字删除时数字不会保留
+  // 可能是因为删除时num变为空字符串,不是数字
+  // 但空字符串毕竟时候会转变为0出发了if语句
+  // 所以将input的数字删除时数字不会保留
+  // 解决方法就是将input绑到一个临时变量上,当input为空时不更新num
+  const num = ref(0);
+  const tempNum = ref(0);
   const alwaysSmall = computed((previous)=>{
-    if(num.value <= 5){
+    if(num.value <= 5){//此处将5改为-1就没有问题
       return num.value
     }
 
     return previous
   })
-  console.log(alwaysSmall.value);
 
+  const updateNum = () => {
+    num.value = tempNum.value;
+  }
+  // 可变计算属性的另一种写法
+  // 实际上就是get函数与只读计算属性的写法一样
+  // 可变计算属性就多了个set函数来修改属性
+  const alwaysSmall2 = computed({
+    get(previous){
+      if(num.value <= 5){
+        return num.value
+      }
+      console.log(previous);
+      return previous
+    },
+    set(newValue){
+      num.value = newValue
+    }
+  })
+  const updateNum2 = () => {
+    alwaysSmall2.value = tempNum.value
+  }
+
+  // Getter 不应有副作用
+  // 不要改变其他状态、在 getter 中做异步请求或者更改 DOM！
+
+  // 避免直接修改计算属性值​
+  // 从计算属性返回的值是派生状态。
+  // 可以把它看作是一个“临时快照”，每当源状态发生变化时，就会创建一个新的快照。
+  // 更改快照是没有意义的，因此计算属性的返回值应该被视为只读的，并且永远不应该被更改
+  // ——应该更新它所依赖的源状态以触发新的计算。
 </script>
 
 <template>
@@ -88,10 +128,19 @@ import { ref, computed } from 'vue';
   <button @click="updateName">updateName</button>
 
   <div>alwaysSmall:{{ alwaysSmall }}</div>
-  <input v-model="num" type="number"></input>
-  <button @click=""></button>
+  <div>alwaysSmall2:{{ alwaysSmall2 }}</div>
+  <div>num:{{ num }}</div>
+  <!-- 错误的写法 <input v-model="num" type="number"></input> -->
+   <input v-model="tempNum" type="number"></input>
+  <button @click="updateNum">updateNum</button>
+  <button @click="updateNum2">updateNum2</button>
+
 </template>
 
 <style scoped>
-
+button {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  display: block;
+}
 </style>
