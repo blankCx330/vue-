@@ -14,6 +14,11 @@ const classObjComputed = computed(() => ({
   classObj1: isActive.value && !hasError.value,
   classObj2: hasError.value || hasError.value === false,
 }))
+
+// 关于组件
+import hello from './helloWorld.vue'
+import towDiv from './towDiv.vue';
+import errorTowDiv from './errorTowDiv.vue';
 </script>
 
 <template>
@@ -21,6 +26,7 @@ const classObjComputed = computed(() => ({
   <!-- 由vue框架实现 -->
   <div :class="{ active: isActive }">hello</div>
   <button @click="updateActive">Toggle Active</button>
+  <!-- 在Vue的:class对象语法中，无论类名是否带引号，最终都会被转换为字符串类型的类名。 -->
 
   <!-- class可以与:class共存
    这里最后渲染的结果会是
@@ -46,7 +52,25 @@ const classObjComputed = computed(() => ({
   <!-- 等价于<div class="font-bold classObj1">{{ text }}</div> -->
   <div :class="['font-bold', classObj]">{{ text }}</div>
 
-  <div>{{ text }}</div>
+  <!-- 在数组中有条件的渲染某个class也可以使用三元表达式 -->
+  <!-- 等价于<div class="active">{{ text }}</div> -->
+  <div :class="[ isActive ? 'active' : '']">{{ text }}</div>
+
+  <!-- 当然,在数组中也可以混合对象和字符串 -->
+  <!-- 等价于<div class="active font-bold font-size">{{ text }}</div> -->
+  <div :class="[{'active': isActive}, 'font-bold', {'font-size': isActive}]">{{ text }}</div>
+
+  <!-- 关于组件 -->
+  <!-- 组件可以像下面这样添加类 -->
+   <hello class="font-bold" />
+   <hello :class="{'active': isActive, 'font-szie': hasError}" />
+
+   <!-- 对于组件里有多个根元素时 -->
+   <towDiv class="font-bold" />    
+
+   <!-- 无效 -->
+   <errorTowDiv class="classObj1"/>
+
 </template>
 
 <style scoped>
