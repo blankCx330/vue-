@@ -46,6 +46,14 @@ const updateArrObj = () => {
     index: {{ index }} ———— 对应的文本：{{ char.text }}
 </h3>
 
+<!-- 
+    也可以使用 of 作为分隔符来替代 in
+    这更接近 JavaScript 的迭代器语法： 
+-->
+<p v-for="arr of arrObj">
+    {{ arr.num }}
+    </p>
+
 
 </template>
 
