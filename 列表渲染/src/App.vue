@@ -11,6 +11,16 @@ const updateArrObj = () => {
     arrObj.value.push({num: (arrObj.value.length + 1)})
 }
 
+const titles = ref(['第一个title', '第二个title', '第三个title']);
+const pars = ref(['第一个par', '第二个par', '第三个par']);
+const add = (a,b) => a + b
+const myObj = ref({
+    name: '开拓者',
+    path: '开拓',
+    partner: '三月七，丹恒',
+    add: add(19, 18),
+})
+
 </script>
 
 <template>
@@ -54,12 +64,61 @@ const updateArrObj = () => {
     {{ arr.num }}
     </p>
 
+<!-- 嵌套使用v-for -->
+<!--   
+    Vue 的渲染是深度优先的
+    渲染顺序是先完成外层 h1标签的渲染
+    然后再为每个 h1标签填充内层的 p标签。
+-->
+<div class="div-p">
+    <h1 v-for="tittle in titles">
+        {{ tittle }}
+        <p v-for="par in pars">
+            {{ par }}
+        </p>
+    </h1>
+</div>
+
+<!-- 使用v-for来遍历一个对象的所有属性 -->
+<!-- 也是渲染了三个元素 -->
+<div v-for="value in myObj" style="border: 1px solid black;">
+    {{ value }}
+</div>
+
+<!-- 
+    对于对象
+    第二个参数表示它的键值
+    第三个参数表示位置索引 
+-->
+<div v-for = "(value, key, index) in myObj" style="border: 1px solid black;">
+   {{ key }} : {{ value }} index: {{ index }}
+</div>
+
+<!-- v-for可以接受一个整数数值 -->
+<!-- 注意，初始值是从1开始 -->
+<div class="div-p">
+    <p v-for="n in 18">
+        {{ n }}
+    </p>
+    <p v-for="n in myObj.add"> <!-- 函数也可以 -->
+        {{ n }}
+    </p>
+</div>
+
+<ul>
+  <template v-for="item in items">
+    <li>{{ item }}</li>
+    <li class="divider" role="presentation">芜湖</li>
+  </template>
+</ul>
 
 </template>
 
 <style scoped>
 .div-p{
     display: flex;
+    width: 100vw;
+    flex-wrap: wrap;
 }
 p{
     font-size: 1.3rem;
