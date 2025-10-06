@@ -112,6 +112,17 @@ const myObj = ref({
   </template>
 </ul>
 
+<!-- 错误示例
+     在条件渲染中提到，v-if的优先级高于v-for
+     编译器会首先处理 v-if="obj.num === 2"这个表达式
+     此时 v-for循环还没有执行，变量 obj根本不存在
+     因此v-if试图访问一个未定义对象 (obj) 的属性 (num) 
+     自然会引发错误
+    <p v-for="obj in arrObj" v-if="obj.num === 2">
+        {{ obj.num }}
+    </p> 
+-->
+
 </template>
 
 <style scoped>
