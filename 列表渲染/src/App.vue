@@ -123,6 +123,17 @@ const myObj = ref({
     </p> 
 -->
 
+<!-- 正确示例 -->
+<!-- 
+     通过在 v-for循环内使用 v-if条件来过滤数组元素
+     这也更加明显易读 
+-->
+<div v-for="obj in arrObj" >
+    <p v-if="obj.num % 2 === 1">
+        {{ obj.num }}
+    </p>
+</div>
+
 </template>
 
 <style scoped>
