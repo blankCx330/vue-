@@ -23,7 +23,7 @@ const myObj = ref({
 
 const keyObj= ref([
     {id: 1, name: '张三'},
-    {id: 2, name: '李四'},
+    {id: 1, name: '李四'},
     {id: 3, name: '王五'},
 ])
 const addKeyObj = () => {
@@ -146,10 +146,21 @@ const addKeyObj = () => {
     </p>
 </div>
 
-<div v-for="kObj in keyObj">
-    id:{{ kObj.id }} {{ kObj.name }}
+
+<!-- 未解决 -->
+<div>
+    <ul>
+        <li v-for="kObj in keyObj">
+            id:{{ kObj.id }} {{ kObj.name }}
+        </li>
+    </ul>
+    <button @click="addKeyObj">添加新成员</button>
+    <ul>
+        <li v-for="kObj in keyObj" :key="kObj.id">
+            id:{{ kObj.id }} {{ kObj.name }}
+        </li>
+    </ul>
 </div>
-<button @click="addKeyObj">添加新成员</button>
 
 </template>
 
