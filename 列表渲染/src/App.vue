@@ -21,6 +21,18 @@ const myObj = ref({
     add: add(19, 18),
 })
 
+const keyObj= ref([
+    {id: 1, name: '张三'},
+    {id: 2, name: '李四'},
+    {id: 3, name: '王五'},
+])
+const addKeyObj = () => {
+    keyObj.value.unshift({
+        id: keyObj.value.length + 1,
+        name: '新成员'
+    })
+}
+
 </script>
 
 <template>
@@ -133,6 +145,11 @@ const myObj = ref({
         {{ obj.num }}
     </p>
 </div>
+
+<div v-for="kObj in keyObj">
+    id:{{ kObj.id }} {{ kObj.name }}
+</div>
+<button @click="addKeyObj">添加新成员</button>
 
 </template>
 
