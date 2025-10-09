@@ -23,7 +23,7 @@ const myObj = ref({
 
 const keyObj= ref([
     {id: 1, name: '张三'},
-    {id: 1, name: '李四'},
+    {id: 2, name: '李四'},
     {id: 3, name: '王五'},
 ])
 const addKeyObj = () => {
@@ -147,20 +147,58 @@ const addKeyObj = () => {
 </div>
 
 
-<!-- 未解决 -->
-<div>
+<!-- 
+    vue中有关key的使用
+    目前我找不到什么毕竟好的例子来解释
+    只能简单说说有什么作用 
+-->
+
+    <!-- 
+        这里没有使用key
+        在veu中模板变量改变后会重新渲染
+        不使用key会将整个v-for重新渲染一次
+        可能会导致渲染效率低下 
+    -->
     <ul>
         <li v-for="kObj in keyObj">
             id:{{ kObj.id }} {{ kObj.name }}
         </li>
     </ul>
-    <button @click="addKeyObj">添加新成员</button>
+
+    <!-- 
+        这里使用了key
+        只会渲染变化的部分(即key不同的部分)
+        例如添加一个新成员
+        只会渲染新成员这一部分
+        其他部分不会重新渲染
+        这样可以提高渲染效率 
+    -->
     <ul>
         <li v-for="kObj in keyObj" :key="kObj.id">
             id:{{ kObj.id }} {{ kObj.name }}
         </li>
     </ul>
-</div>
+
+    <!-- 
+        注意
+        不推荐使用index作为key
+        因为index会随着数组的变化而变化
+        例如在数组开头添加一个新成员
+        其他成员的index都会变化
+        (1，2，3 -> 1，2，3，4  原1,2,3变成了2,3,4)
+        (即向下顺延了一位)
+        这样每个key都会变化
+        这样就失去了使用key的意义
+        下面的例子仅供演示
+        可能会导致渲染效率低下 
+    -->
+    <ul>
+        <li v-for="(kObj, index) in keyObj" :key="index">
+            id:{{ kObj.id }} {{ kObj.name }}
+        </li>
+    </ul>
+
+    <button @click="addKeyObj">添加新成员</button>
 
 </template>
 
