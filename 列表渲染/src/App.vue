@@ -1,11 +1,12 @@
 <script setup>
 import { ref } from 'vue';
+import MyComponent from './MyComponent.vue';  
 const items = ref(['Item 1', 'Item 2', 'Item 3']);
-const arrObj = ref([{num: 1}, {num: 2}, {num: 3}]);
+const arrObj = ref([{num: 1,}, {num: 2}, {num: 3}]);
 const charObj= ref([
-    {text: '这是第一个文本'}, 
-    {text: '这是第二个文本'},
-    {text: '这是第三个文本'},
+    {text: '这是第一个文本', id:1}, 
+    {text: '这是第二个文本', id:2},
+    {text: '这是第三个文本', id:3},
     ])
 const updateArrObj = () => {
     arrObj.value.push({num: (arrObj.value.length + 1)})
@@ -197,8 +198,10 @@ const addKeyObj = () => {
             id:{{ kObj.id }} {{ kObj.name }}
         </li>
     </ul>
-
     <button @click="addKeyObj">添加新成员</button>
+
+    <!-- 关于组件 -->
+    <MyComponent v-for="char in charObj" :key="char.id" />
 
 </template>
 
