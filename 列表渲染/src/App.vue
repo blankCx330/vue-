@@ -201,7 +201,27 @@ const addKeyObj = () => {
     <button @click="addKeyObj">添加新成员</button>
 
     <!-- 关于组件 -->
-    <MyComponent v-for="char in charObj" :key="char.id" />
+    <!-- 
+        v-for不会自动将任何数据传递给组件
+        组件有自己独立的作用域
+        要传入props来使用组件 
+    -->
+    <MyComponent 
+        v-for="char in charObj"
+        :title="char.text"
+        :id="char.id" 
+        :key="char.id" 
+    />
+
+    <!-- 
+        这里没有传入任何props
+        组件内部无法使用任何数据
+        只能显示静态内容
+    -->
+    <MyComponent 
+        v-for="char in charObj"
+        :key="char.id" 
+    />
 
 </template>
 
