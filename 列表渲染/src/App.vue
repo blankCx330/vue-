@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import MyComponent from './MyComponent.vue';  
 const items = ref(['Item 1', 'Item 2', 'Item 3']);
 const arrObj = ref([{num: 1,}, {num: 2}, {num: 3}]);
@@ -32,6 +32,34 @@ const addKeyObj = () => {
         id: keyObj.value.length + 1,
         name: '新成员'
     })
+}
+
+const reArr = ref([1,2,3,4,3,9,5,4,2,6,9,2,4,6,8,5,3]);
+
+//注意，这里修改了原数组
+const updateReArr = () => {
+    reArr.value = reArr.value.filter(num => num !== 3);
+}
+
+//注意,在计算属性里使用reverse() 和 sort()会修改原数组
+//下面这个代码就会修改原数组
+//const sortedArr = computed(() => reArr.value.sort((a,b) => a-b))
+
+//在调用sort()前先使用slice()创建一个原数组的浅拷贝
+//这样就不会修改原数组了
+const sortedArr = computed(() => reArr.value.slice().sort((a,b) => a-b)) 
+console.log('sortedArr', sortedArr.value)
+
+//这里没有修改原数组
+const oddNumReserved = computed(() => reArr.value.filter(num => num%2 === 1))
+
+const mulArr = ref([
+    [1,2,3,4,5],
+    [6,7,8,9,10],
+    [3,4,5,6,7],
+])
+const mulArrOddNum = arr => {
+    return arr.filter(num => num%2 === 1)
 }
 
 </script>
@@ -222,6 +250,49 @@ const addKeyObj = () => {
         v-for="char in charObj"
         :key="char.id" 
     />
+
+    <!-- 数组变化侦测 -->
+    <!-- 
+        这里并没有因为filter返回一个新的数组
+        导致 Vue 丢弃现有的 DOM 并重新渲染整个列表
+        因为Vue 实现了一些巧妙的方法来最大化对 DOM 元素的重用(我去nb)
+        因此用另一个包含部分重叠对象的数组来做替换
+        仍会是一种非常高效的操作。 
+    -->
+     <div class="div-p">
+        <p v-for="num in reArr">
+            {{ num }}
+        </p>
+     </div>
+     <button @click="updateReArr">去除3</button>
+
+    <!-- 展示过滤或排序后的结果 -->
+    <!-- 
+        当希望显示数组经过 过滤 或 排序 的内容但不修改原数组时
+        可以像下面代码操作
+        这里的oddNumReserved是一个computer属性
+    -->
+    <div class="div-p">
+        <p v-for="num in oddNumReserved">
+            {{ num }}
+        </p>
+    </div>
+
+    <!-- 
+        在computed属性不可信的情况下
+        例如在多层嵌套的v-for中
+        可以使用函数返回过滤后的结果
+        例如下面的例子
+    -->
+    <ul v-for="arr in mulArr">
+        <li>
+            <div class="div-p">
+                <p v-for="num in mulArrOddNum(arr)">
+                    {{ num }}
+                </p>
+            </div>
+        </li>
+    </ul>
 
 </template>
 
