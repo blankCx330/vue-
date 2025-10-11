@@ -27,6 +27,11 @@ const hello= (event) => {
 }
 const say = message => alert(message)
 
+const doThis = () => {
+  console.log("doThis")
+}
+
+const log = (message) => console.log(message)
 
 </script>
 
@@ -130,6 +135,32 @@ const say = message => alert(message)
     </p>
   </div>
   <p>scrollNum: {{ colorNum }}</p>
+
+  <!-- 关于@scroll.passive的应用 -->
+  <!-- 
+    很可惜现在阶段我找不到什么比较好的例子
+    这里就简单说明一下
+    1. 使用@scroll监听滚动事件时，
+       浏览器会等待事件处理器执行完毕后再进行滚动
+
+    2. 使用@scroll.passive监听滚动事件时，
+       浏览器会立即进行滚动，
+       而不会等待事件处理器执行完毕
+
+    3. 因此@scroll.passive可以提高滚动性能，避免滚动卡顿 
+  -->
+  <div class="div-p" @scroll.passive="doThis">
+    <p v-for="n in 10">
+      {{ n }}
+    </p>
+  </div>
+  <!-- .passive 修饰符一般用于触摸事件的监听器
+  可以用来改善移动端设备的滚屏性能。 -->
+
+  <hr/>
+
+  <!-- 按键修饰符 -->
+  <input @keyup.enter ="log('芜湖')" />
 
 </template>
 
