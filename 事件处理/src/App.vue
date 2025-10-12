@@ -160,7 +160,96 @@ const log = (message) => console.log(message)
   <hr/>
 
   <!-- 按键修饰符 -->
-  <input @keyup.enter ="log('芜湖')" />
+  <!-- 
+    简单来说就是检测按键事件
+    然后触发对应的事件处理器 
+  -->
+  <input @keyup.enter ="log('芜湖')" 
+         @keyup.delete="log('删除')" 
+         @keyup.space="log('空格')"
+          placeholder="按键试试"
+  />
+  <br/>
+  <!-- 实际上可以使用多个按键来进行多键操作 -->
+  <!-- 
+    注意：多个按键时顺序无关紧要
+    例如：@keyup.ctrl.shift.a 和 @keyup.shift.ctrl.a 是一样的 
+  -->
+  <input 
+      @keyup.z.x="log('z+x')"
+      @keyup.z.x.c="log('z+x+c')"
+      placeholder="按键试试"
+  />
+  <br/>
+  <!-- 
+    不难发现上面的代码在按下z+x时会触发z+x+c的事件处理器
+    这实际上是因为Vue 的按键修饰符默认是 ​顺序无关​ 的
+    如果用户按了 z 和 x（未触发第三个键）
+    两个事件的条件均被满足
+    因此会同时触发
+    简单来说就是多个按键时会变成多按键模式
+    但只需要满足其中两个按键就会触发 
+  -->
+  <!-- 
+    因此要注意不要让按键修饰符互相包含
+    否则会出现意想不到的结果
+    例如上面的 z+x 和 z+x+c
+  -->
+  <!-- 
+    系统按键修饰符有四种：
+    ctrl
+    alt
+    shift
+    meta(在 Mac 键盘上是 Command ⌘ 键，在 Windows 键盘上是 Windows 徽标键)
+  -->
+  <!-- 
+  值得注意的是：
+  系统修饰键（如 Ctrl）本身不会直接触发键盘事件
+  需与其他按键组合使用
+  -->
+  <input 
+         @keyup.ctrl="log('不会触发')"
+         @keyup.alt.t="log('alt+t')"
+          placeholder="按键试试"
+  />
+  <br/>
+  <!-- 通过click事件监听器可以单独使用系统修饰符 -->
+  <!-- 其实也是系统修饰符配合其他方法触发了事件处理器 -->
+  <input 
+         @click.ctrl="log('点击了ctrl')"
+          placeholder="通过click事件监听器可以单独使用系统修饰符"
+  />
+  <br/>
+  <!-- 
+    系统修饰符实际上类似于给按键添加了一个前缀锁
+    锁定事件触发的前置条件
+    只有当特定系统键处于激活状态时
+    后续操作才会生效 
+  -->
+  <!--
+    因此即使加了系统修饰符
+    仍然会出现多按键模式
+    导致现在只需要ctrl加任意一个按键就可以触发事件处理器 
+  -->
+    <input 
+      @keyup.ctrl.z.x="log('z+x')"
+      @keyup.ctrl.z.x.c="log('z+x+c')"
+      placeholder="ctrl.z.x"
+    />
+    <br/>
+  <!-- 
+    实际上在vue中有严格按照顺序的按键修饰符 .exact
+    但这个顺序的对系统按键修饰符来说的
+    普通的按键修饰符仍然是多按键模式
+  -->
+  <!-- 关于exact -->
+   <input 
+      @keydown.z.x.c.exact="log('严格z+x+c')"
+      @keyup.ctrl.z.x.c.exact="log('严格ctrl.z+x+c')"
+      placeholder="z+x+c.exact"
+    />
+    <br/>
+
 
 </template>
 
@@ -175,5 +264,9 @@ button{
   overflow: auto;
   height: 15vh;
   width: 30vw;
+}
+input{
+  height: 2rem;
+  margin: 0.5rem 0;
 }
 </style>
