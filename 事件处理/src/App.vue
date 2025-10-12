@@ -184,11 +184,10 @@ const log = (message) => console.log(message)
   <!-- 
     不难发现上面的代码在按下z+x时会触发z+x+c的事件处理器
     这实际上是因为Vue 的按键修饰符默认是 ​顺序无关​ 的
-    如果用户按了 z 和 x（未触发第三个键）
-    两个事件的条件均被满足
-    因此会同时触发
-    简单来说就是多个按键时会变成多按键模式
-    但只需要满足其中两个按键就会触发 
+    也就是说只要按下了修饰符中包含的按键
+    就会触发对应的事件处理器
+    简单来说可以将触发的条件类比为 z||x||c
+    只要按下了z或x或c就会触发z+x+c的事件处理器
   -->
   <!-- 
     因此要注意不要让按键修饰符互相包含
@@ -226,11 +225,6 @@ const log = (message) => console.log(message)
     只有当特定系统键处于激活状态时
     后续操作才会生效 
   -->
-  <!--
-    因此即使加了系统修饰符
-    仍然会出现多按键模式
-    导致现在只需要ctrl加任意一个按键就可以触发事件处理器 
-  -->
     <input 
       @keyup.ctrl.z.x="log('z+x')"
       @keyup.ctrl.z.x.c="log('z+x+c')"
@@ -240,16 +234,65 @@ const log = (message) => console.log(message)
   <!-- 
     实际上在vue中有严格按照顺序的按键修饰符 .exact
     但这个顺序的对系统按键修饰符来说的
-    普通的按键修饰符仍然是多按键模式
+    普通的按键修饰符来说.exact会被自动忽略
   -->
   <!-- 关于exact -->
+  <!-- 注意：
+    keyup事件​：
+    当释放某个键（如 Ctrl）时
+    浏览器会 ​更新修饰键状态​（ctrlKey变为 false）
+    但 ​可能未及时同步其他键的状态​（如 Shift仍被按住）
+    此时，Vue 会误判 Shift是独立触发的。 
+    而且keyup事件在按键释放时触发
+    单个按键的keyup事件不会触发
+  -->
+  <!-- 
+    简单来说.exact实际上就是在检测是否有其他的按键被按下
+    如果有其他的按键被按下则不会触发事件处理器 
+  -->
    <input 
       @keydown.z.x.c.exact="log('严格z+x+c')"
-      @keyup.ctrl.z.x.c.exact="log('严格ctrl.z+x+c')"
+      @keyup.shift.exact="log('shift')"
+      @keyup.shift.ctrl.z.exact="log('shift+ctrl+z')"
       placeholder="z+x+c.exact"
     />
     <br/>
 
+    两个都会触发
+    <input 
+      @keydown.shift="log('shift')"
+      @keydown.shift.ctrl.z="log('shift+ctrl+z')"
+      placeholder="无.exact"
+    />
+    <br/>
+
+    只会触发一个
+    <input 
+      @keydown.shift.exact="log('shift')"
+      @keydown.shift.ctrl.z.exact="log('shift+ctrl+z')"
+      placeholder="有.exact"
+    />
+    <br/>
+
+    <!-- 关于鼠标按键修饰符 -->
+    <!-- 
+      Vue 支持使用鼠标按键修饰符来监听特定的鼠标按键事件
+      这些修饰符包括：
+      .left  - 鼠标左键
+      .right - 鼠标右键
+      .middle - 鼠标中键（滚轮）
+    -->
+    <div class="div-button" @click.left="log('点击了左键')">左键</div>
+    <div class="div-button" @click.right="log('点击了右键')">右键</div>
+    <div class="div-button" @click.middle="log('点击了中键')">中键</div>
+    <br/>
+
+    <!-- 
+      不难发现
+      Vue 的按键修饰符本质上是在事件监听器
+      (例如@click, @keyup, @keydown)中添加了触发条件
+      只有满足了这个按键条件之后才会触发这个事件处理器 
+    -->
 
 </template>
 
@@ -268,5 +311,13 @@ button{
 input{
   height: 2rem;
   margin: 0.5rem 0;
+}
+.div-button{
+  margin: 0.5rem 0;
+  background-color: rgb(35, 101, 187);
+  color: #fff;
+  width: 100px;
+  height: 100px;
+  border: 1px solid black;
 }
 </style>
