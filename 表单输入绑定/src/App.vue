@@ -6,6 +6,8 @@ const argee = ref(true);
 const argeeArr = ref([true, false, true, true])
 const chaekedName = ref([])
 const arr = ref([])
+const selected = ref('');
+const selectArr = ref([]);
 </script>
 
 <template>
@@ -84,6 +86,27 @@ const arr = ref([])
   <input type="radio" id="two" value="two" v-model="arr" />
   <label for="two">two</label>
 
+  <!-- 选择器 -->
+  <!-- 
+    select中v-model会自动追踪option的value值
+    当option没有设置value属性时
+    vue会自动将option的文本内容作为value值 
+  -->
+  <div>Select: {{ selected }}</div>
+  <select v-model="selected">
+    <option disabled>请选择</option>
+    <option>A</option>
+    <option>B</option>
+    <option value="这是C">C</option>
+  </select>
+
+  <div>SelectArr: {{ selectArr.join(' ') }}</div>
+  <select v-model="selectArr" multiple>
+    <option value="1">AB</option>
+    <option value="2">CD</option>
+    <option value="3">AAA</option>
+  </select>
+
 </template>
 
 <style scoped>
@@ -96,7 +119,7 @@ textarea{
 }
 div{
   border: 1px solid #000;
-  width: 100px;
+  width: 200px;
   word-wrap: break-word;
 }
 </style>
