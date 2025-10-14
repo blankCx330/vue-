@@ -100,6 +100,8 @@ const selectArr = ref([]);
     <option value="这是C">C</option>
   </select>
 
+  <!-- select绑定数组也可以显示多个选项 -->
+  <!-- 但要注意，原生的浏览器要按ctrl或shift + 鼠标点击进行多选 -->
   <div>SelectArr: {{ selectArr.join(' ') }}</div>
   <select v-model="selectArr" multiple>
     <option value="1">AB</option>
