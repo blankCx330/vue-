@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 const text = ref("这是文本")
 const message = ref('')
 const argee = ref(true);
@@ -16,7 +16,7 @@ const options = ref([
 const picked = ref('');
 const toggle = ref('')
 const reNum = num => '这是第'+num+'个元素'
-const modifier = ref('');
+const modifier = ref();
 </script>
 
 <template>
@@ -194,8 +194,47 @@ const modifier = ref('');
 <hr/>
 
 <!-- 修饰符 -->
-<div>modifier: {{ modifier }}</div>
-<input type="text" v-model.lazy="modifier"/>
+ <!-- 
+    默认情况下，v-model 会在每次 input 事件后更新数据
+  .lazy修饰符会改为在每次 change 事件后更新数据
+
+  注意：input要包裹在from中，
+  不然即使加了lazy修饰符表现也是输入一个字符更新一次 
+
+  在from中时失去焦点才会更新v-model的值(未理解原理)
+ -->
+ <form>
+    <div>modifier: {{ modifier }}</div>
+    <input type="text" v-model.lazy="modifier"  />
+ </form>
+
+ <!-- 
+  .number可以将用户的输入自动转换为数字
+  例如输入10e2会返回1000 
+  如果输入的不是数字则会保留原来的文本
+ -->
+ <div>modifier: {{ modifier }}</div>
+ <input type="text" v-model.number="modifier" />
+ <br/>
+ <button @click="console.log(typeof modifier)">检测类型</button>
+
+ <!-- .trim的作用是去除用户输入内容中两端的空格 -->
+ <!-- 无.trim -->
+ <!-- 
+  输入“ 111 ”
+  控制台打印 # 111 # 
+ -->
+ <div>modifier: {{ modifier }}</div>
+ <input type="text" v-model="modifier" /><br/>
+ <button @click="console.log('#'+modifier+'#')">检测modifier</button>
+ <!-- 有.trim -->
+ <!-- 
+  输入“ 111 ”
+  控制台打印 #111# 
+ -->
+ <div>modifier: {{ modifier }}</div>
+ <input type="text" v-model.trim="modifier" /><br/>
+ <button @click="console.log('#'+modifier+'#')">检测modifier</button>
 
 </template>
 
@@ -212,5 +251,8 @@ div{
   width: 200px;
   height: 1.5rem;
   word-wrap: break-word;
+}
+button{
+  font-size: 1.2rem;
 }
 </style>
