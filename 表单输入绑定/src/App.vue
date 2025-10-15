@@ -8,6 +8,15 @@ const chaekedName = ref([])
 const arr = ref([])
 const selected = ref('');
 const selectArr = ref([]);
+const options = ref([
+  { text: 'One', value: 'A' },
+  { text: 'Two', value: 'B' },
+  { text: 'Three', value: 'C' }
+])
+const picked = ref('');
+const toggle = ref('')
+const reNum = num => '这是第'+num+'个元素'
+const modifier = ref('');
 </script>
 
 <template>
@@ -109,6 +118,85 @@ const selectArr = ref([]);
     <option value="3">AAA</option>
   </select>
 
+  <!-- 当然可以使用v-for快速部署option -->
+  <div>selected: {{ selected }}</div>
+  <select v-model="selected">
+    <option 
+      v-for="option in options" 
+        :value="option.value">
+        {{ option.text }}
+    </option>
+  </select>
+
+  <hr/>
+
+  <!-- 值绑定 -->
+  <!-- 简单来说就是返回value的值 -->
+   <div>{{ picked }}</div>
+   <div>{{ toggle }}</div>
+   <div>{{ selected }}</div>
+  <!-- `picked` 在被选择时是字符串 "a" -->
+  <input type="radio" v-model="picked" value="a" />
+
+  <!-- `toggle` 只会为 true 或 false -->
+  <input type="checkbox" v-model="toggle" />
+
+  <!-- `selected` 在第一项被选中时为字符串 "abc" -->
+  <select v-model="selected">
+    <option value="abc">ABC</option>
+  </select>
+
+  <!-- true-value 和 false-value 是 Vue 特有的属性 -->
+  <!-- 在选中时value为YES 取消选择时设为 NO -->
+  <div>{{ toggle }}</div>
+  <input 
+    type="checkbox"
+    v-model="toggle"
+    true-value="YES"
+    false-value="NO"
+    />
+
+  <!-- value同样可以通过 v-bind 将其绑定为其他动态值 -->
+  <!-- true-value 和 false-value 也可以绑定为他动态值 -->
+  <!-- 简单来说就是绑定一个函数 -->
+  <!-- 当然不要忘记v-bind的简写是 ':' -->
+
+  <div>{{ toggle }}</div>
+  <input 
+    type="checkbox"
+    v-model="toggle"
+    :true-value="reNum(1)"
+    :false-value="reNum(0)"
+    />
+
+  <div>Selected: {{ selected }}</div>
+  <select v-model="selected">
+    <option 
+      v-for="(option, index) in options"
+      :value="reNum(index)"
+      :key="option.value">
+    {{ option.text }}
+    </option>
+  </select>
+
+<div>picked: {{ picked }}</div>
+<input type="radio" v-model="picked" :value="reNum(1)" />
+<input type="radio" v-model="picked" :value="reNum(2)" />
+<div>{{ selected }}</div>
+
+<!-- v-model 同样也支持非字符串类型的值绑定！ -->
+<select v-model="selected">
+  <option :value="{ '这是一个对象': 123 }">
+    对象捏
+  </option>
+</select>
+
+<hr/>
+
+<!-- 修饰符 -->
+<div>modifier: {{ modifier }}</div>
+<input type="text" v-model.lazy="modifier"/>
+
 </template>
 
 <style scoped>
@@ -122,6 +210,7 @@ textarea{
 div{
   border: 1px solid #000;
   width: 200px;
+  height: 1.5rem;
   word-wrap: break-word;
 }
 </style>
