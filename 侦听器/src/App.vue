@@ -83,12 +83,20 @@ watch(deepObjReactive,(newObj, oldObj)=>{
 
 //一个返回响应式对象的 getter 函数
 //返回不同的对象时，才会触发回调
+// 仅当 deepObjReactive 被替换时触发
 watch(
   () => deepObjReactive,
   (newObj, oldObj)=>{
   console.log("getter函数返回对象"+newObj.count.a, oldObj.count.a)
 })
-const updateObj = () => deepObjReactive = {num: 10};
+
+//显式的加上deep强制转换成深层侦听器
+watch(
+  () => deepObjReactive,
+  (newObj, oldObj)=>{
+  console.log("deep + getter函数返回对象"+newObj.count.a, oldObj.count.a)
+},
+{deep: true})
 
 //这里并不能监听到对象的深层变化
 //因为传入的是ref，即使其内部是嵌套对象，默认的watch仍然是浅层监听
@@ -101,6 +109,41 @@ watch(deepObj,(newDeepObj, oldDeepObj)=>{
 },
 {deep: true});
 
+// 注意：
+// 深度侦听需要遍历被侦听对象中的所有嵌套的属性，
+// 当用于大型数据结构时，开销很大。
+// 因此请只在必要时才使用它，并且要留意性能。
+
+
+
+// 即时回调的侦听器
+// watch 默认是懒执行的：仅当数据源变化时，才会执行回调。
+// 显式声明immediate
+// 可以在数据源变化前先触发一次回调函数
+const source = ref(0);
+watch(
+    source,
+    (newValue, oldValue) => {
+      console.log('newSource:' + newValue, 'oldSource:'+ oldValue)
+    },
+    {immediate: true}
+)
+
+
+
+// 一次性侦听器
+// 显式声明once
+// 和其名字一样，只会触发一次回调函数
+const one = ref(100)
+watch(
+    one,
+    (newValue, oldValue) => {
+      console.log('一次性侦听器' + newValue, oldValue)
+    },
+    {once: true}
+  )
+const updateOne = () => one.value++;
+
 </script>
 
 <template>
@@ -112,7 +155,7 @@ watch(deepObj,(newDeepObj, oldDeepObj)=>{
 <div>age: {{ deepObj.id.age }}</div>
 <button @click="updateAge">age++</button>
 <button @click="updateA">a++</button>
-<button @click="updateObj">updateObj</button>
+<button @click="updateOne">一次性侦听器</button>
 
 </template>
 
