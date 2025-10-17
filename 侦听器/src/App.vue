@@ -1,5 +1,5 @@
 <script setup>
-import {reactive, ref, watch, watchEffect} from 'vue'
+import {reactive, ref, watch, watchEffect, onWatcherCleanup} from 'vue'
 const text = ref('这是侦听器文本')
 
 // watch的用法 
@@ -169,6 +169,40 @@ watchEffect(()=>{
     const totalPrice = count.value * 100 //总价
     console.log(`使用watchEffect：一共${totalPrice}元`)
 })
+//来自官方文档：
+// 对于这种只有一个依赖项的例子来说，watchEffect() 的好处相对较小。
+// 但是对于有多个依赖项的侦听器来说，使用 watchEffect() 可以消除手动维护依赖列表的负担。
+// 此外，如果你需要侦听一个嵌套数据结构中的几个属性，watchEffect() 可能会比深度侦听器更有效，
+// 因为它将只跟踪回调中被使用到的属性，而不是递归地跟踪所有的属性。
+
+
+
+//副作用清理
+const inputText = ref('')
+const awaitText = ref('')
+
+const awaitFn = async () => {
+  console.log(inputText.value)
+  setTimeout( () => {
+    awaitText.value = inputText.value
+  }, '1000')
+}
+
+watch(inputText, async (newValue)=>{
+  const controller = new AbortController()
+    onWatcherCleanup(()=>{
+    controller.abort()
+  })
+  try{
+      await awaitFn(newValue)
+  }
+  catch(err){
+    if(err.name === 'AbortError'){
+      console.log('旧请求被终止')
+    }
+  }
+
+})
 
 </script>
 
@@ -183,6 +217,10 @@ watchEffect(()=>{
 <button @click="updateA">a++</button>
 <button @click="updateOne">一次性侦听器</button>
 <button @click="count++">商品数量+1</button>
+
+<hr/>
+<h2>{{ awaitText }}</h2>
+<input type="text" v-model="inputText"/>
 
 </template>
 
