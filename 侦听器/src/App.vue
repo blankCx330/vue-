@@ -1,5 +1,5 @@
 <script setup>
-import {reactive, ref, watch} from 'vue'
+import {reactive, ref, watch, watchEffect} from 'vue'
 const text = ref('这是侦听器文本')
 
 // watch的用法 
@@ -144,6 +144,32 @@ watch(
   )
 const updateOne = () => one.value++;
 
+
+
+//watchEffect()
+//在官方文档中说的
+//侦听器的回调使用与源完全相同的响应式状态是很常见的。
+//简单来说这句话的意思是
+//在侦听器的回调函数中使用监听的数据是很常见的
+
+//举个例子
+const count = ref(2) //商品数量
+
+//这里就使用了监听的数据
+watch(count,(newValue)=>{
+  const totalPrice = newValue * 100 //总价
+  console.log(`一共${totalPrice}元`)
+})
+
+//watchEffect()可以简化上面的代码
+//watchEffect允许我们自动跟踪回调的响应式依赖
+//并且watchEffect的回调会立即执行(不需要显示的指定immediate: true)
+//也就是说这个回调函数会先执行一次
+watchEffect(()=>{
+    const totalPrice = count.value * 100 //总价
+    console.log(`使用watchEffect：一共${totalPrice}元`)
+})
+
 </script>
 
 <template>
@@ -156,6 +182,7 @@ const updateOne = () => one.value++;
 <button @click="updateAge">age++</button>
 <button @click="updateA">a++</button>
 <button @click="updateOne">一次性侦听器</button>
+<button @click="count++">商品数量+1</button>
 
 </template>
 
