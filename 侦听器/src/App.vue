@@ -178,6 +178,21 @@ watchEffect(()=>{
 
 
 //副作用清理
+//有点抽象
+//设想一下当watch的异步函数在请求完成前 输入的数据 发生了变化
+//那么我们应该希望能够在 输入数据 变为新值时取消过时的请求。
+//这个就是副作用清理的主要作用
+//通过在watch中申请一个AbortController对象来获取一个signal通道
+//signal通道也可以叫做信号通道
+//每个 AbortController.signal属性创建的是一个 ​独立的信号通道
+//通道特性​: 每个 signal通道有唯一标识符（浏览器内部维护）
+//因此这里实现 在请求完成前 输入的数据 发生了变化然后取消过时的请求
+//实际上是通过signal通道来实现的
+//watch每回调一次就会创建一个新的signal通道
+//然后异步函数就会绑定新的signal通道
+//最后使用controller.abort()关闭旧通道
+//来达到取消旧请求的效果
+//取消的旧请求会由JavaScript的内置资源回收器来回收
 const inputText = ref('')
 const awaitText = ref('')
 
@@ -190,9 +205,6 @@ const awaitFn = async () => {
 
 watch(inputText, async (newValue)=>{
   const controller = new AbortController()
-    onWatcherCleanup(()=>{
-    controller.abort()
-  })
   try{
       await awaitFn(newValue)
   }
@@ -201,6 +213,9 @@ watch(inputText, async (newValue)=>{
       console.log('旧请求被终止')
     }
   }
+    onWatcherCleanup(()=>{
+    controller.abort()
+  })
 
 })
 
