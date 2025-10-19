@@ -193,31 +193,24 @@ watchEffect(()=>{
 //最后使用controller.abort()关闭旧通道
 //来达到取消旧请求的效果
 //取消的旧请求会由JavaScript的内置资源回收器来回收
-const inputText = ref('')
-const awaitText = ref('')
 
-const awaitFn = async () => {
-  console.log(inputText.value)
-  setTimeout( () => {
-    awaitText.value = inputText.value
-  }, '1000')
-}
 
-watch(inputText, async (newValue)=>{
-  const controller = new AbortController()
-  try{
-      await awaitFn(newValue)
-  }
-  catch(err){
-    if(err.name === 'AbortError'){
-      console.log('旧请求被终止')
-    }
-  }
-    onWatcherCleanup(()=>{
-    controller.abort()
-  })
+//下面的例子不是很好之后记得修改（（（（
+const id = ref()
+
+watch(id, (newId)=>{
+const controller = new AbortController()
 
 })
+
+const awaitFn = async () => {
+  const image = await fetch(`https://dog.ceo/api/breeds/image/random`)
+  return image.url;
+}
+
+awaitFn()
+
+
 
 </script>
 
@@ -234,8 +227,8 @@ watch(inputText, async (newValue)=>{
 <button @click="count++">商品数量+1</button>
 
 <hr/>
-<h2>{{ awaitText }}</h2>
-<input type="text" v-model="inputText"/>
+
+<img :scr="awaitFn"/>
 
 </template>
 
