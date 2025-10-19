@@ -197,8 +197,9 @@ watchEffect(()=>{
 
 
 const id = ref('0')
+let imageUrl = ref('没有网址')
 
-//注意：onWatcherCleanup要在await之前
+//注意：onWatcherCleanup要在await之前 且 onWatcherCleanup()必须要在watch/watchEffect中
 //不然的话onWatcherCleanup就会等待await函数执行完毕
 //但是onWatcherCleanup()为了取消旧请求
 //这样就与副作用清理的逻辑冲突、
@@ -210,6 +211,9 @@ const id = ref('0')
 
 //这是这是 Vue 的主动保护机制​
 //避免内存泄漏和残留副作用（如悬而未决的网络请求）。
+
+
+// watch使用onWatcherCleanup()
 watch(id, async (newValue)=>{
   const controller = new AbortController()
   imageUrl.value = '';
@@ -234,6 +238,8 @@ watch(id, async (newValue)=>{
 // 通过函数参数传递的 onCleanup 与侦听器实例相绑定
 // 因此不受 onWatcherCleanup 的同步限制
 
+
+// watch 使用 onCleanup()
 // watch(id, async (newValue,oldValue,onCleanup)=>{
 //   const controller = new AbortController()
 //   imageUrl.value = '';
@@ -252,19 +258,58 @@ watch(id, async (newValue)=>{
 // })
 
 
+// watchEffect使用onWatcherCleanup()
+// watchEffect(async ()=>{
+//   const controller = new AbortController()
+//   imageUrl.value = '';
+//   onWatcherCleanup(()=>{
+//     console.log('中止旧id')
+//     controller.abort()
+//   })
+//   try{
+//     const image = await fetch(`https://picsum.photos/id/${id.value}/info`, { signal: controller.signal })
+//     const imageDate = await image.json()
+//     imageUrl.value = imageDate.download_url;
+//     console.log(imageUrl.value);
+//   }catch(err){
+//     console.log('erro:' + err);
+//   }
+// })
+
+
+// watchEffect使用onCleanup()
+// watchEffect(async (onCleanup)=>{
+//   const controller = new AbortController()
+//   imageUrl.value = '';
+//   try{
+//     const image = await fetch(`https://picsum.photos/id/${id.value}/info`, { signal: controller.signal })
+//     const imageDate = await image.json()
+//     imageUrl.value = imageDate.download_url;
+//     console.log(imageUrl.value);
+//   }catch(err){
+//     console.log('erro:' + err);
+//   }
+//   onCleanup(()=>{
+//     console.log('中止旧id')
+//     controller.abort()
+//   })
+// })
+
+//onCleanup可以放在 await后面，只要侦听器实例在注册时仍活跃（未卸载、未停止监听）。
+//{ signal: controller.signal }是必要的，用于配合 AbortController取消旧请求，避免无效状态更新或数据覆盖。
 
 
 
 //临时进行的fetch抓取练习
-let imageUrl = ref('没有网址')
+let imageUrl1 = ref('没有网址')
 const awaitFn = async () => {
-  imageUrl.value = '';
+  imageUrl1.value = '';
   const image = await fetch(`https://dog.ceo/api/breeds/image/random`)
   const imageDate = await image.json()
   const { message } = imageDate;
-  imageUrl.value = imageDate.message;
+  imageUrl1.value = imageDate.message;
 
-  console.log(imageUrl.value);
+  console.log(imageUrl1.value);
 }
 
 </script>
