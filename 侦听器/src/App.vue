@@ -195,22 +195,77 @@ watchEffect(()=>{
 //取消的旧请求会由JavaScript的内置资源回收器来回收
 
 
-//下面的例子不是很好之后记得修改（（（（
-const id = ref()
 
-watch(id, (newId)=>{
-const controller = new AbortController()
+const id = ref('0')
 
+//注意：onWatcherCleanup要在await之前
+//不然的话onWatcherCleanup就会等待await函数执行完毕
+//但是onWatcherCleanup()为了取消旧请求
+//这样就与副作用清理的逻辑冲突、
+
+//而且在watch中触发onWatcherCleanup()是必然的
+//只要 Watcher 被销毁（如 id变化）
+//清理函数就会被调用
+//无论请求是否完成
+
+//这是这是 Vue 的主动保护机制​
+//避免内存泄漏和残留副作用（如悬而未决的网络请求）。
+watch(id, async (newValue)=>{
+  const controller = new AbortController()
+  imageUrl.value = '';
+  onWatcherCleanup(()=>{
+    console.log('中止旧id')
+    controller.abort()
+  })
+  try{
+    const image = await fetch(`https://picsum.photos/id/${newValue}/info`, { signal: controller.signal })
+    const imageDate = await image.json()
+    imageUrl.value = imageDate.download_url;
+    console.log(imageUrl.value);
+  }catch(err){
+    console.log('erro:' + err);
+  }
 })
 
+// 下面这段代码等效于之前的代码
+// onCleanup 函数还作为第三个参数传递给侦听器回调
+// 以及 watchEffect 作用函数的第一个参数
+// onCleanup可以在await后面使用
+// 通过函数参数传递的 onCleanup 与侦听器实例相绑定
+// 因此不受 onWatcherCleanup 的同步限制
+
+// watch(id, async (newValue,oldValue,onCleanup)=>{
+//   const controller = new AbortController()
+//   imageUrl.value = '';
+//   try{
+//     const image = await fetch(`https://picsum.photos/id/${newValue}/info`, { signal: controller.signal })
+//     const imageDate = await image.json()
+//     imageUrl.value = imageDate.download_url;
+//     console.log(imageUrl.value);
+//   }catch(err){
+//     console.log('erro:' + err);
+//   }
+//   onCleanup(()=>{
+//     console.log('中止旧id')
+//     controller.abort()
+//   })
+// })
+
+
+
+
+
+//临时进行的fetch抓取练习
+let imageUrl = ref('没有网址')
 const awaitFn = async () => {
+  imageUrl.value = '';
   const image = await fetch(`https://dog.ceo/api/breeds/image/random`)
-  return image.url;
+  const imageDate = await image.json()
+  const { message } = imageDate;
+  imageUrl.value = imageDate.message;
+
+  console.log(imageUrl.value);
 }
-
-awaitFn()
-
-
 
 </script>
 
@@ -228,12 +283,27 @@ awaitFn()
 
 <hr/>
 
-<img :scr="awaitFn"/>
+<div class="div-img">
+  <img v-if="imageUrl" :src="imageUrl" alt="图片"/>
+  <p v-else>图片加载中...</p>
+</div>
+<form>
+    <input type="number" v-model="id" />
+</form>
 
 </template>
 
 <style scoped>
 button{
   font-size: 1.3rem;
+}
+img{
+  max-width: 300px;
+  max-height: 300px;
+}
+.div-img{
+  width: 300px;
+  height: 300px;
+  border: 1px solid black;
 }
 </style>
