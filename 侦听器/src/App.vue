@@ -367,6 +367,36 @@ watch(num1,(newValue)=>{
 //   console.log('使用获取flush:\'post\'的DOM内容: '+numRef1.value?.textContent)
 // })
 
+// 同步侦听器
+// 简单来说就是无视数据收集阶段直接进行回调
+// 要注意因为无视数据收集以及合并
+// 所以这里的数据在同一时间发生大量变化时都会触发回调
+const count1 = ref(0)
+const syncMessage = ref('')
+const syncMessageRef = ref(null)
+
+
+watch(count1, (newValue) => {
+  syncMessage.value = `立即更新: ${newValue}`
+  console.log('[同步回调] 当前值:', newValue)
+  console.log(syncMessageRef.value.textContent)
+}, { flush: 'sync' })
+// 同上
+// 同步触发的 watchEffect() 也有个更方便的别名 watchSyncEffect()
+
+// 来自官方文档
+// 同步侦听器不会进行批处理，每当检测到响应式数据发生变化时就会触发。
+// 可以使用它来监视简单的布尔值
+// 但应避免在可能多次同步修改的数据源 (如数组) 上使用。
+
+
+
+// 停止侦听器
+// 用同步语句创建的侦听器
+// 会自动绑定到宿主组件实例上
+// 并且会在宿主组件卸载时自动停止
+// 因此在大多数情况下并不需要关系怎么停止一个侦听器
+
 </script>
 
 <template>
@@ -401,6 +431,11 @@ watch(num1,(newValue)=>{
 <button @click="num++">num++</button>
 <div ref="numRef1">{{ num1 }}</div>
 <button @click="num1++">num1++</button>
+
+<hr/>
+<button @click="count1++">点击增加</button>
+<p>当前值：{{ count1 }}</p>
+<p ref="syncMessageRef" >同步回调输出：{{ syncMessage }}</p>
 
 </template>
 
