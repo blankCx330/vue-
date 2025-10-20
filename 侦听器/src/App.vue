@@ -299,7 +299,6 @@ watch(id, async (newValue)=>{
 //{ signal: controller.signal }是必要的，用于配合 AbortController取消旧请求，避免无效状态更新或数据覆盖。
 
 
-
 //临时进行的fetch抓取练习
 let imageUrl1 = ref('没有网址')
 const awaitFn = async () => {
@@ -310,6 +309,26 @@ const awaitFn = async () => {
   imageUrl1.value = imageDate.message;
 
   console.log(imageUrl1.value);
+}
+
+
+
+// 回调的触发时机
+const items = ref([])
+const log = ref([])
+
+//watch无法侦听到数组内部的变化，要加上deep，或者直接传入.value
+watch(items.value,(newValue) => {
+  log.value.push(`侦听触发，当前长度：${newValue.length}`)
+  console.log('触发侦听器')
+})
+
+const updateItems = () => {
+  log.value = []
+  for(let i=0; i<1000; i++){
+    items.value.push(`Item ${i}`)
+  }
+  console.log('[同步操作结束] 数组实际长度:', items.value.length)
 }
 
 </script>
@@ -335,6 +354,11 @@ const awaitFn = async () => {
 <form>
     <input type="number" v-model="id" />
 </form>
+
+<hr/>
+<div>侦听日志: {{ log.length }}</div> 
+<div>实际数组长度: {{ items.length }}</div> 
+<button @click="updateItems">updateItems</button>
 
 </template>
 
