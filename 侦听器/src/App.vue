@@ -1,5 +1,5 @@
 <script setup>
-import {reactive, ref, watch, watchEffect, onWatcherCleanup} from 'vue'
+import {reactive, ref, watch, watchEffect, onWatcherCleanup, watchPostEffect} from 'vue'
 const text = ref('这是侦听器文本')
 
 // watch的用法 
@@ -314,6 +314,13 @@ const awaitFn = async () => {
 
 
 // 回调的触发时机
+// 首先要知道的是每个响应式数据都有一个对应的的Dep实例(依赖收集器)
+// 其作用是管理所有依赖该数据的watch并在数据变化时通知它们更新
+// 当数据更新时每次更新都会触发Dep的notify()调用
+// 但Vue会通过异步队列合并这些操作，最终仅执行一次watch回调
+
+// 简单来说就是当数据在同一时间发生变化时(一次或多次)
+// Vue会合并这些变化，使依赖的watch只执行一次回调，以优化性能
 const items = ref([])
 const log = ref([])
 
@@ -330,6 +337,35 @@ const updateItems = () => {
   }
   console.log('[同步操作结束] 数组实际长度:', items.value.length)
 }
+
+// watch默认flush: pre
+// 侦听器回调会在父组件更新 (如有) 之后
+// 所属组件的 DOM 更新之前被调用
+// 也就是说在watch中访问所属组件的DOM
+// 那么DOM将处于更新前的状态
+
+// 下面这个例子会延迟一个数字
+const num = ref(0);
+const numRef = ref(null);
+watch(num,(newValue)=>{
+  console.log('触发回调时watch中获取的DOM内容: '+numRef.value?.textContent)
+})
+
+// 使用flush:'post'
+// 侦听器回调中能访问被 Vue 更新之后的所属组件的 DOM
+// 即控制台输出与视图一致
+const num1 = ref(0);
+const numRef1 = ref(null);
+watch(num1,(newValue)=>{
+  console.log('使用获取flush:\'post\'的DOM内容: '+numRef1.value?.textContent)
+},
+{flush: 'post'})
+
+// 后置刷新的 watchEffect() 有个更方便的别名 watchPostEffect()：
+// watchPostEffect(()=>{5
+//   num1.value = num1.value
+//   console.log('使用获取flush:\'post\'的DOM内容: '+numRef1.value?.textContent)
+// })
 
 </script>
 
@@ -359,6 +395,12 @@ const updateItems = () => {
 <div>侦听日志: {{ log.length }}</div> 
 <div>实际数组长度: {{ items.length }}</div> 
 <button @click="updateItems">updateItems</button>
+
+<hr/>
+<div ref="numRef">{{ num }}</div>
+<button @click="num++">num++</button>
+<div ref="numRef1">{{ num1 }}</div>
+<button @click="num1++">num1++</button>
 
 </template>
 
