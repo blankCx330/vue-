@@ -1,5 +1,5 @@
 <script setup>
-import {reactive, ref, watch, watchEffect, onWatcherCleanup, watchPostEffect} from 'vue'
+import {reactive, ref, watch, watchEffect, onWatcherCleanup, watchPostEffect, onMounted, onUnmounted} from 'vue'
 const text = ref('这是侦听器文本')
 
 // watch的用法 
@@ -397,6 +397,51 @@ watch(count1, (newValue) => {
 // 并且会在宿主组件卸载时自动停止
 // 因此在大多数情况下并不需要关系怎么停止一个侦听器
 
+// 但是异步创建的侦听器在组件卸载后任然存在
+// 需要主动的卸载侦听器
+
+// 要手动停止一个侦听器，请调用 watch 或 watchEffect 返回的函数：
+// const unwatch = watchEffect(() => {})
+// ...当该侦听器不再需要时
+// unwatch()
+
+const searchKeyword = ref('')
+let searchWatch = null // 存储 stop 函数
+
+onMounted(() => {
+  // 模拟异步初始化（如等待 DOM 渲染完成）
+  setTimeout(() => {
+    searchWatch = watch(searchKeyword, async (newVal) => {
+      console.log(`开始搜索：${newVal}（需手动清理）`)
+      // 模拟异步 API 请求
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      console.log(`搜索完成：${newVal}`)
+    })
+  }, 1000)
+})
+
+onUnmounted(() => {
+  // 必须手动停止异步创建的侦听器
+  if (searchWatch){
+    searchWatch()
+    console.log('手动停止异步创建的侦听器')
+  }
+})
+
+
+// 来自官方文档的建议：
+// 注意，需要异步创建侦听器的情况很少，
+// 请尽可能选择同步创建。
+// 如果需要等待一些异步数据，你可以使用条件式的侦听逻辑：
+// 需要异步请求得到的数据
+const data = ref(null)
+
+watchEffect(() => {
+  if (data.value) {
+    // 数据加载后执行某些操作...
+  }
+})
+
 </script>
 
 <template>
@@ -436,6 +481,10 @@ watch(count1, (newValue) => {
 <button @click="count1++">点击增加</button>
 <p>当前值：{{ count1 }}</p>
 <p ref="syncMessageRef" >同步回调输出：{{ syncMessage }}</p>
+
+<hr/>
+<input v-model="searchKeyword" placeholder="输入关键词..." />
+<button @click="searchWatch">清理watch</button><!--这里清理了watch-->
 
 </template>
 
