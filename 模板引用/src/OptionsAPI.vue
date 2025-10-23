@@ -1,6 +1,4 @@
 <script>
-import { Update } from 'vite';
-
 export default{
     data() {
         return {
@@ -11,6 +9,9 @@ export default{
     methods: {
         UpdateNum(){
             this.num++
+        },
+        updateText(text){
+            this.text = text
         }
     }
 }
@@ -20,7 +21,7 @@ export default{
 <template>
 <div>
     <h1>{{ text }}</h1>
-    <button @click="UpdateNum">'num:' + {{ num }}</button>
+    <button @click="UpdateNum">num:{{ num }}</button>
 </div>
 </template>
 
