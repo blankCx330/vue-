@@ -30,6 +30,25 @@ watchEffect(()=>{
   }
 })
 
+// 关于组件
+// 模板引用也可以被用在一个子组件上
+// 这种情况下引用中获得的值是组件实例
+import Hello from './Hello.vue'
+import OptionsAPI from './OptionsAPI.vue'
+const helloRef = useTemplateRef('hello')
+
+onMounted(()=>{
+  console.log(helloRef.value)
+})
+
+// 如果一个子组件使用的是选项式 API 或没有使用 <script setup>
+// 被引用的组件实例和该子组件的 this 完全一致
+// 这意味着父组件对子组件的每一个属性和方法都有完全的访问权
+// 简单来说就是使用选项式API子组件（默认暴露所有属性和方法） 
+// <script setup>的是默认私有的
+
+
+
 </script>
 
 <template>
@@ -37,6 +56,9 @@ watchEffect(()=>{
 <!-- 它允许我们在一个特定的 DOM 元素或子组件实例被挂载后，获得对它的直接引用。 -->
   <h1>{{ text }}</h1>
   <input ref="my-input" />
+
+  <Hello ref="hello" />
+  <options-a-p-i ref="optionsAPI" />
 
 </template>
 
