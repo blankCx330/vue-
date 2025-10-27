@@ -11,8 +11,12 @@ const text = ref('这是组件基础文本')
 const jsButtonRef = ref(null);
 onMounted(()=>{
   console.log(jsButtonRef.value);
-  
 })
+
+// 关于Props
+import aboutProps from './components/aboutProps.vue';
+import aboutPropsTypeScript from './components/aboutPropsTypeScript';
+
 </script>
 
 <template>
@@ -31,8 +35,26 @@ onMounted(()=>{
   <br />
   <jsClickButton ref="jsButtonRef" />
   <!-- 在单文件组件中
-  推荐为子组件使用 PascalCase 的标签名
+  推荐为子组件使用 PascalCase 的标签名(也就是驼峰命名)
   以此来和原生的 HTML 元素作区分。 -->
+
+
+  <!-- 
+    注意：这里可以传入数字也可以传入字符串
+    但是如果没有在字符串两边加上''的话
+    vue会将其识别为一个JavaScriptd的表达式
+    "这是aboutProps组件的标题"被当作 ​变量名​ 而非字符串
+    若该变量未定义，则传递 undefined，导致子组件无法渲染。
+  -->
+  <aboutProps :title="'这是字符串'" />
+  <aboutProps :title="42" />
+  <!-- 
+  会触发警告且不会渲染
+  <aboutProps :title="这是aboutProps组件的标题" /> 
+  -->
+
+  <aboutPropsTypeScript :title="'这是标题'" />
+
 </template>
 
 <style scoped>
