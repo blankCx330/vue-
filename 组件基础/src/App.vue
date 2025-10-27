@@ -16,6 +16,17 @@ onMounted(()=>{
 // 关于Props
 import aboutProps from './components/aboutProps.vue';
 import aboutPropsTypeScript from './components/aboutPropsTypeScript';
+const titles = ref(['标题1', '标题2', '标题3']);
+
+//关于监听事件
+import blogPost from './components/blogPost.vue';
+const blogDate = ref([
+    {id: 1, title: '博客标题1', post: '博客文章1'},
+    {id: 2, title: '博客标题2', post: '博客文章2'},
+    {id: 3, title: '博客标题3', post: '博客文章3'}
+  ])
+const fontSize = ref(1.2)
+
 
 </script>
 
@@ -54,6 +65,27 @@ import aboutPropsTypeScript from './components/aboutPropsTypeScript';
   -->
 
   <aboutPropsTypeScript :title="'这是标题'" />
+
+  <!-- 组件也可以使用v-for来渲染 -->
+  <aboutProps 
+    v-for="title in titles" 
+    :key="title"
+    :title="title"
+  /> 
+
+  <div :style="{ fontSize: fontSize + 'rem' }">
+    <blogPost 
+      v-for="date in blogDate"
+      :key="date.id"
+      :id="date.id"
+      :title="date.title"
+      :post="date.post"
+      @addFontSize="fontSize = (fontSize+0.2)%2"
+    />
+    <!-- @addFontSize 接收来自子组件的事件信号 -->
+    <!-- 值得一提的是$emit并不会触发冒泡 -->
+  </div>
+
 
 </template>
 
