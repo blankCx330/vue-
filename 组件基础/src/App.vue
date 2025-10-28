@@ -1,5 +1,5 @@
 <script setup>
-import {ref, onMounted} from 'vue'
+import {ref, onMounted, shallowRef} from 'vue'
 //通过这个来引用别的组件
 import clickButton from './components/clickButton.vue';
 
@@ -34,18 +34,34 @@ import aboutSlot from './components/aboutSlot.vue';
 import componentA from './components/componentA.vue';
 import componentB from './components/componentB.vue';
 
-const components = {
-  componentA,
-  componentB
-}
+// 提前注册组件
+  const components = {
+    A:componentA,
+    B:componentB
+  }
 
-const selectComponent = ref('componentA')
-const updateComponent = () => {
-  selectComponent.value = selectComponent.value === 'componentA' 
-    ? 'componentB'
-    : 'componentA'
-}
+  // 切换组件
+  const selectComponent = ref('A')
+  const updateComponent = () => {
+    selectComponent.value = selectComponent.value === 'A' 
+      ? 'B'
+      : 'A'
+  }
+  //有关KeepAlive的使用
+  import countComponents from './components/countComponents.vue';
+  import inputComponents from './components/inputComponents.vue';
 
+  const KeepAliveComponents = {
+    Count: countComponents,
+    Input: inputComponents
+  }
+
+  const selectKeepAliveComponent = ref('Count')
+
+//DOM 内模板解析注意事项
+
+//大小写区分
+// JavaScript 中的 camelCase
 
 </script>
 
@@ -115,8 +131,31 @@ const updateComponent = () => {
   <aboutSlot><p class="red">这是父组件插入的文本</p></aboutSlot>
 
   <!-- 动态组件 -->
-  <component :is="selectComponent"></component>
+  <component :is="components[selectComponent]"></component>
   <button @click="updateComponent">切换组件</button>
+
+  <!-- 关于KeepAlive的使用 -->
+  <!-- 
+    KeepAlive简单来说就是会对切换的组件进行缓存
+    以保留组件切换前的数据
+    max属性是可缓存的最大组件数(自动遗忘最久没有被访问的缓存实例将被销毁) 
+  -->
+   <div class="KeepAlive-div">
+    <input type="radio" value="Count" v-model="selectKeepAliveComponent">
+    Count</input>
+    <input type="radio" value="Input" v-model="selectKeepAliveComponent">
+    Input</input>
+    <br/>
+    未使用KeepAlive
+    <component :is="KeepAliveComponents[selectKeepAliveComponent]"></component>
+    <br/>
+    使用了KeepAlive
+    <KeepAlive max="3">
+      <component :is="KeepAliveComponents[selectKeepAliveComponent]"></component>
+    </KeepAlive>
+  </div>
+
+  <!-- HTML 中的 kebab-case -->
 
 </template>
 
@@ -128,5 +167,11 @@ const updateComponent = () => {
 .blue{
   color: #fff;
   background-color: blue;
+}
+.KeepAlive-div{
+  width: 300px;
+  height: 150px;
+  border: 2px solid black;
+  background-color: aquamarine;
 }
 </style>
