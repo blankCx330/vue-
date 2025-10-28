@@ -27,6 +27,25 @@ const blogDate = ref([
   ])
 const fontSize = ref(1.2)
 
+// 通过插槽来分配内容
+import aboutSlot from './components/aboutSlot.vue';
+
+// 动态组件
+import componentA from './components/componentA.vue';
+import componentB from './components/componentB.vue';
+
+const components = {
+  componentA,
+  componentB
+}
+
+const selectComponent = ref('componentA')
+const updateComponent = () => {
+  selectComponent.value = selectComponent.value === 'componentA' 
+    ? 'componentB'
+    : 'componentA'
+}
+
 
 </script>
 
@@ -86,6 +105,18 @@ const fontSize = ref(1.2)
     <!-- 值得一提的是$emit并不会触发冒泡 -->
   </div>
 
+  <!-- 通过插槽来分配内容 -->
+  <!-- 将这里的文本插入进子组件里的<slot />位置 -->
+  <!-- <slot />相当一个占位符 -->
+  <!-- 实际编译时可以将文本看作替换了<slot />的位置 -->
+  <aboutSlot> 这是父组件插入的文本 </aboutSlot>
+  <!-- 值得一提的是也可以插入标签 -->
+  <!-- 这里替换<slot />的是<p class="red">这是父组件插入的文本</p> -->
+  <aboutSlot><p class="red">这是父组件插入的文本</p></aboutSlot>
+
+  <!-- 动态组件 -->
+  <component :is="selectComponent"></component>
+  <button @click="updateComponent">切换组件</button>
 
 </template>
 
