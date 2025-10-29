@@ -61,9 +61,25 @@ import componentB from './components/componentB.vue';
 //DOM 内模板解析注意事项
 
 //大小写区分
-// JavaScript 中的 camelCase
+// HTML 标签和属性名称是不分大小写的
+// 所以浏览器会把任何大写的字符解释为小写。
+// 这意味着当你使用 DOM 内的模板时
+// 无论是 PascalCase 形式的组件名称、camelCase 形式的 prop 名称
+// 还是 v-on 的事件名称
+// 都需要转换为相应等价的 kebab-case (短横线连字符) 形式
+// 但单文件可以使用 PascalCase 形式的命名以来区分 html 原生的标签
+
+
+// 闭合标签
+import border from './components/border.vue';
 
 </script>
+
+
+
+
+
+
 
 <template>
   <h1>{{ text }}</h1>
@@ -155,7 +171,57 @@ import componentB from './components/componentB.vue';
     </KeepAlive>
   </div>
 
-  <!-- HTML 中的 kebab-case -->
+  <!-- 闭合标签 -->
+   <border />
+   <p>闭合标签</p>
+  <!-- 
+  这里没有发生异常
+  是因为Vue 的模板解析器支持任意标签使用 /> 作为标签关闭的标志 
+  -->
+  <!-- 
+  在 DOM 内模板中，我们必须显式地写出关闭标签 
+  这是由于 HTML 只允许一小部分特殊的元素省略其关闭标签
+  最常见的就是 <input> 和 <img>。
+  对于其他元素来说会解析为:
+  <border>
+    <p>闭合标签</p>
+  </border>
+  -->
+
+
+  <!-- 元素位置限制 -->
+  <!-- 
+    某些 HTML 元素对于放在其中的元素类型有限制
+   例如 <ul>，<ol>，<table> 和 <select>
+   相应的某些元素仅在放置于特定元素中时才会显示
+   例如 <li>，<tr> 和 <option></option> 
+  -->
+  <table>
+    <border />
+  </table>
+  <!-- 
+    这里没有发生异常的原因与
+    <border />被正确解析则与 Vue 的模板解析机制有关。 
+  -->
+  <!-- 
+    在 DOM 内模板中
+    我们可以使用is="你的模板"来进行替换元素
+    例如上面的代码可以写成
+    <table>
+      <tr is="vue:border"></tr>
+    </table>
+    注意:
+    is是 HTML 的标准属性
+    通过添加 vue:前缀
+    Vue 明确告知解析器这是一个 ​Vue 组件
+    而非原生属性或元素。
+  -->
+    <!--
+    不会渲染
+    <table>
+      <tr is="border"></tr>
+    </table> 
+    -->
 
 </template>
 
